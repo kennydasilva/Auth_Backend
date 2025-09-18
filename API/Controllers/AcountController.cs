@@ -1,3 +1,5 @@
+using API.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -6,11 +8,9 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class AcountController : ControllerBase
     {
-        [HttpGet]
-        public string HI()
-        { 
-            return "HI";
-        }
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
 
     }
 }
