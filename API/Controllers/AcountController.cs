@@ -4,6 +4,7 @@ using System.Text;
 using API.Dtos;
 using API.Models;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -83,7 +84,7 @@ namespace API.Controllers
 
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
-            if (user is  null)
+            if (user is null)
             {
                 return Unauthorized(new AuthResponseDto
                 {
@@ -103,7 +104,7 @@ namespace API.Controllers
                 });
             }
 
-            
+
 
 
             var token = GenerateJwtToken(user);
@@ -131,7 +132,7 @@ namespace API.Controllers
 
             var roles = _userManager.GetRolesAsync(user).Result;
 
-             var claims = new List<Claim>
+            var claims = new List<Claim>
             {
                 new (JwtRegisteredClaimNames.Email, user.Email ?? ""),
                 new (JwtRegisteredClaimNames.Name, user.FullName ?? ""),
@@ -160,7 +161,36 @@ namespace API.Controllers
         }
 
 
-       
+        [Authorize]
+        [HttpGet("detail")]
+        public async Task<ActionResult<UserDetailDto>> GetUserDetail()
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(currentUserId!);
+
+            if (user is null)
+            {
+                return NotFound(new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "User not found"
+                });
+
+            }
+
+
+            return Ok(new UserDetailDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                roles = [..await _userManager.GetRolesAsync(user)],
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                AccessFailedCount = user.AccessFailedCount,
+            });
+        
+       } 
 
 
 
