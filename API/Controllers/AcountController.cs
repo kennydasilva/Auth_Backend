@@ -7,6 +7,7 @@ using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
@@ -185,12 +186,29 @@ namespace API.Controllers
                 Email = user.Email,
                 FullName = user.FullName,
                 PhoneNumber = user.PhoneNumber,
-                roles = [..await _userManager.GetRolesAsync(user)],
+                roles = [.. await _userManager.GetRolesAsync(user)],
                 PhoneNumberConfirmed = user.PhoneNumberConfirmed,
                 AccessFailedCount = user.AccessFailedCount,
             });
-        
-       } 
+
+        }
+
+
+        [HttpGet]
+        public async Task<IEnumerable<UserDetailDto>> GetUsers()
+        {
+            var users = await _userManager.Users.Select(u => new UserDetailDto
+            {
+                Id = u.Id,
+                Email = u.Email,
+                FullName = u.FullName,
+                PhoneNumber = u.PhoneNumber,
+                roles = _userManager.GetRolesAsync(u).Result.ToArray(),
+
+            }).ToListAsync();
+             
+             return users;
+        }
 
 
 
