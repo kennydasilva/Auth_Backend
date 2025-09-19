@@ -4,6 +4,7 @@ using API.Models;
 using API.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using APO.Dtos;
 
 
 namespace API.Controllers
@@ -84,6 +85,37 @@ namespace API.Controllers
             return BadRequest("Role deletion failed");
         }
 
+
+        [HttpPost("assign")]
+        public async Task<IActionResult> AssignRole([FromBody] RoleAssignDto roleAssignDto)
+        {
+            var user = await _userManager.FindByIdAsync(roleAssignDto.UserId);
+
+            if (user is null)
+            {
+                return NotFound("User not found");
+            }
+
+            var role = await _roleManager.FindByIdAsync(roleAssignDto.RoleId);
+
+
+            if (role is null)
+            {
+                return NotFound("Role not found.");
+            }
+
+            var result = await _userManager.AddToRoleAsync(user, role.Name!);
+
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "Role assigned to user successfully" });
+            }
+            
+
+            var error  = result.Errors.FirstOrDefault();
+
+            return BadRequest(error?.Description);
+        }
 
     }
 
