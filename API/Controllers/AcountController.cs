@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AcountController : ControllerBase
@@ -30,7 +31,7 @@ namespace API.Controllers
             _configuration = configuration;
         }
 
-
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<string>> Register(RegisterDto registerDto)
         {
@@ -76,7 +77,7 @@ namespace API.Controllers
         }
 
 
-
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
         {
